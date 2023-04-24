@@ -1,0 +1,18 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!DOCTYPE ServiceDefinition PUBLIC "sailpoint.dtd" "sailpoint.dtd">
+<ServiceDefinition name="PluginImporter" hosts="global" interval="86400" executor="sailpoint.services.standard.pluginimporter.PluginImporterService">
+  <Attributes>
+    <Map>
+      <entry key="installpath" value="WEB-INF/plugins/ssb/install"/>
+      <entry key="uninstallpath" value="WEB-INF/plugins/ssb/uninstall"/>
+    </Map>
+  </Attributes>
+    <Description>
+      Service definition for the SSB plugin importer service. Interval is in seconds. e.g. 86400 is 1 day.
+      The installpath and uninstallpath are used to describe the relative pathing for plugins.
+      Recommendation is to use default values, but legacy area under plugins/system/SSB/install or plugins/system/SSB/uninstall can be used as well.
+      If you change the installpath, the Task Resulter and Log Level Manager plugins included in the SSD will not be automatically deployed.
+      The paths get appended to sailpoint.tools.Util.getApplicationHome() and are from the app server perspective.
+      Forward slashes here work for Windows or Linux.
+    </Description>
+</ServiceDefinition>

@@ -1,0 +1,935 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="services.standard.build" default="main">
+
+    <import file="scripts/build.filelayout.xml"/>
+    <import file="scripts/build.java.xml"/>
+    <import file="scripts/build.config.xml"/>
+    <import file="scripts/build.dev.xml"/>
+    <import file="scripts/build.plugins.xml"/>
+
+    <!-- Compiler options -->
+
+    <property name="compiler.debug" value="on"/>
+    <property name="compiler.generate.no.warnings" value="off"/>
+    <property name="compiler.args" value=""/>
+    <property name="compiler.max.memory" value="128m"/>
+
+    <patternset id="ignored.files">
+        <exclude name="**/CVS/**"/>
+        <exclude name="**/SCCS/**"/>
+        <exclude name="**/RCS/**"/>
+        <exclude name="**/rcs/**"/>
+        <exclude name="**/.DS_Store/**"/>
+        <exclude name="**/.svn/**"/>
+        <exclude name="**/.pyc/**"/>
+        <exclude name="**/.pyo/**"/>
+        <exclude name="**/*.pyc/**"/>
+        <exclude name="**/*.pyo/**"/>
+        <exclude name="**/.git/**"/>
+        <exclude name="**/*.hprof/**"/>
+        <exclude name="**/_svn/**"/>
+        <exclude name="**/.hg/**"/>
+        <exclude name="**/*.lib/**"/>
+        <exclude name="**/*~/**"/>
+    </patternset>
+    <patternset id="library.patterns">
+        <include name="*.zip"/>
+        <include name="*.war"/>
+        <include name="*.egg"/>
+        <include name="*.ear"/>
+        <include name="*.swc"/>
+        <include name="*.jar"/>
+    </patternset>
+    <patternset id="compiler.resources">
+        <include name="**/?*.properties"/>
+        <include name="**/?*.xml"/>
+        <include name="**/?*.gif"/>
+        <include name="**/?*.png"/>
+        <include name="**/?*.jpeg"/>
+        <include name="**/?*.jpg"/>
+        <include name="**/?*.html"/>
+        <include name="**/?*.dtd"/>
+        <include name="**/?*.tld"/>
+        <include name="**/?*.ftl"/>
+    </patternset>
+
+    <!-- JDK definitions -->
+
+    <property name="jdk.bin.1.6" value="${jdk.home.1.6}/bin"/>
+    <path id="jdk.classpath.1.6">
+        <fileset dir="${jdk.home.1.6}">
+            <include name="jre/lib/alt-rt.jar"/>
+            <include name="jre/lib/alt-string.jar"/>
+            <include name="jre/lib/charsets.jar"/>
+            <include name="jre/lib/deploy.jar"/>
+            <include name="jre/lib/javaws.jar"/>
+            <include name="jre/lib/jce.jar"/>
+            <include name="jre/lib/jsse.jar"/>
+            <include name="jre/lib/management-agent.jar"/>
+            <include name="jre/lib/plugin.jar"/>
+            <include name="jre/lib/resources.jar"/>
+            <include name="jre/lib/rt.jar"/>
+            <include name="jre/lib/ext/dnsns.jar"/>
+            <include name="jre/lib/ext/localedata.jar"/>
+            <include name="jre/lib/ext/sunjce_provider.jar"/>
+            <include name="jre/lib/ext/sunmscapi.jar"/>
+            <include name="jre/lib/ext/sunpkcs11.jar"/>
+        </fileset>
+    </path>
+
+    <!-- ********************************************************* -->
+    <!-- Global properties                                         -->
+    <!-- ********************************************************* -->
+
+    <taskdef resource="net/sf/antcontrib/antlib.xml">
+        <classpath>
+            <pathelement location="lib/ant-contrib-1.0b3.jar"/>
+        </classpath>
+    </taskdef>
+
+    <taskdef name="build-init" classname="sailpoint.services.tools.ant.BuildInitTask">
+        <classpath>
+            <pathelement location="lib/services-tools.jar"/>
+        </classpath>
+    </taskdef>
+
+    <typedef name="gt" classname="sailpoint.services.tools.ant.ConditionGreaterThan">
+        <classpath>
+            <pathelement location="lib/services-tools.jar"/>
+        </classpath>
+    </typedef>
+
+    <taskdef name="grep" classname="ise.antelope.tasks.Find">
+        <classpath>
+            <pathelement location="lib/AntelopeTasks_3.5.3.jar"/>
+        </classpath>
+    </taskdef>
+
+    <taskdef name="unset" classname="ise.antelope.tasks.Unset">
+        <classpath>
+            <pathelement location="lib/AntelopeTasks_3.5.3.jar"/>
+        </classpath>
+    </taskdef>
+
+    <taskdef name="orderedFileListing" classname="sailpoint.services.tools.ant.OrderedFileListing">
+        <classpath>
+            <fileset dir="lib">
+                <include name="services-tools.jar"/>
+
+            </fileset>
+        </classpath>
+    </taskdef>
+
+
+    <!-- ********************************************************* -->
+    <!-- Global properties                                         -->
+    <!-- ********************************************************* -->
+    <!-- Eclipse -->
+    <property name="build" location="build"/>
+    <property name="build.iiqBinaryExtract" location="${build}/extract"/>
+
+    <target name="init-properties">
+        <!-- Allows you to essentially dereference a property -->
+        <macrodef name="propertycopy">
+            <attribute name="name"/>
+            <attribute name="from"/>
+            <sequential>
+                <property name="@{name}" value="${@{from}}"/>
+            </sequential>
+        </macrodef>
+
+        <!-- The build.properties is loaded further below, after the host
+             name is derived.  This allows per-hostname over-ride of the
+             build.properties file.
+        <property file="build.properties"/>
+         -->
+
+        <!-- list of servers and associated build environments -->
+        <property file="servers.properties"/>
+        <property environment="env"/>
+
+        <!-- get hostname or computername, depending upon OS -->
+        <condition property="hostname" value="${env.HOSTNAME}">
+            <os family="unix"/>
+        </condition>
+        <condition property="hostname" value="${env.COMPUTERNAME}">
+            <os family="windows"/>
+        </condition>
+        <condition property="hostname" value="${env.HOSTNAME}">
+            <os family="mac"/>
+        </condition>
+        <echo>hostname pulled from OS = ${hostname}</echo>
+
+        <!-- look for _hostname_.build.properties ... if found it overrides build.properties-->
+        <echo message="Looking for local properties file ${hostname}.build.properties"/>
+        <if>
+            <available file="${hostname}.build.properties"/>
+            <then>
+                <property file="${hostname}.build.properties"/>
+                <echo message="local properties file = ${hostname}.build.properties"/>
+            </then>
+            <else>
+                <echo>No local properties file for ${hostname}.build.properties</echo>
+                <echo message="Looking for local properties file build.properties.${hostname} (legacy naming convention)"/>
+                <if>
+                    <available file="build.properties.${hostname}"/>
+                    <then>
+                        <echo>
+                            build.properties.${hostname} is now a deprecated naming convention.
+                            Recommendation is to use ${hostname}.build.properties instead.
+                        </echo>
+                        <sleep seconds="5"/>
+                        <property file="build.properties.${hostname}"/>
+                        <echo message="local properties file = build.properties.${hostname}"/>
+                    </then>
+                    <else>
+                        <echo>No local properties file for build.properties.${hostname}</echo>
+                    </else>
+                </if>
+            </else>
+        </if>
+
+        <!-- Look for a _hostname_.target.properties file, if found it overrides BUILDTYPE.target.properties -->
+        <if>
+            <available file="${hostname}.target.properties"/>
+            <then>
+                <property file="${hostname}.target.properties"/>
+                <echo message="Found host-specific properties file = ${hostname}.target.properties"/>
+            </then>
+            <else>
+                <echo>No host-specific properties file for ${hostname}.target.properties</echo>
+            </else>
+        </if>
+
+        <!--information regarding host and discovered target -->
+        <echo message="host = ${hostname}"/>
+
+        <!-- Allow the end user to override the target we are building for by
+             defining an SPTARGET environment variable. -->
+        <if>
+            <isset property="env.SPTARGET"/>
+            <then>
+                <propertycopy name="target" from="env.SPTARGET"/>
+                <echo message="Found SPTARGET environment variable of ${target}, building for that environment."/>
+            </then>
+            <else>
+                <propertycopy name="target" from="${hostname}"/>
+                <echo>No SPTARGET environment variable found</echo>
+            </else>
+        </if>
+        <echo message="target=${target}"/>
+
+        <fail message="Unable to load target properties.  Please ensure your host is set to a build target in servers.properties or that SPTARGET is set to a valid environment name.">
+            <condition>
+                <not>
+                    <available file="${target}.target.properties"/>
+                </not>
+            </condition>
+        </fail>
+
+        <!-- override of os level environment attribute, often useful in dev environments-->
+        <!--<property name="target" value="sandbox"/>-->
+        <echo>Building for environment target ${target}</echo>
+        <if>
+            <!-- Test for the target property files before continuing -->
+            <not>
+                <and>
+                    <available file="${target}.iiq.properties"/>
+                    <available file="${target}.target.properties"/>
+                </and>
+            </not>
+            <then>
+                <fail message="Error: ${line.separator}
+                Can't find '${target}.iiq.properties' and '${target}.target.properties' ${line.separator}
+                You must define these files in the root of the build folder to build for this environment"/>
+            </then>
+        </if>
+
+        <!-- Look for a _target_.build.properties file, if found it overrides build.properties. -->
+        <echo>Looking for a ${target}.build.properties file...</echo>
+        <if>
+            <available file="${target}.build.properties"/>
+            <then>
+                <property file="${target}.build.properties"/>
+                <echo message="Environment-specific properties file = ${target}.build.properties"/>
+            </then>
+            <else>
+                <echo>Did not find a ${target}.build.properties file</echo>
+                <echo>Looking for a build.properties.${target} file instead</echo>
+                <if>
+                    <available file="build.properties.${target}"/>
+                    <then>
+                        <echo>
+                            build.properties.${target} is deprecated naming convention.
+                            Recommendation is to use ${target}.build.properties for new work.
+                        </echo>
+                        <sleep seconds="5"/>
+                        <property file="build.properties.${target}"/>
+                        <echo message="Environment-specific properties file = build.properties.${target}"/>
+                    </then>
+                </if>
+            </else>
+        </if>
+
+        <property file="build.properties"/>
+
+        <!-- look for environment specific files to ignore during the build. -->
+        <echo message="Checking for target '${target}' files to ignore..."/>
+        <if>
+            <available file="${target}.ignorefiles.properties"/>
+            <then>
+                <echo message="Found target ignore list file: '${target}.ignorefiles.properties', loading ignore list."/>
+                <property name="ignoreFiles" value=""/>
+                <property name="ignorefiles.is.found" value="true"/>
+                <loadfile property="ignoreListFile" srcfile="${target}.ignorefiles.properties"/>
+                <!-- Note: we just document on the console the file contents here.
+                     The actual redaction/removal of these files is done in the
+                     build out of the init-custom.xml in the build.config.xml file. -->
+                <for param="ignoreListFileLine">
+                    <tokens>
+                        <file file="${target}.ignorefiles.properties"/>
+                    </tokens>
+                    <sequential>
+                        <var name="ignoreListFileLine.length" unset="true"/>
+                        <length string="@{ignoreListFileLine}" property="ignoreListFileLine.length"/>
+                        <if>
+                            <or>
+                                <!-- Assume the lines don't start with a comment. -->
+                                <matches pattern="\s*\#.*$" string="@{ignoreListFileLine}"/>
+                                <equals arg1="${ignoreListFileLine.length}" arg2="0"/>
+                            </or>
+                            <then>
+                                <!-- the line is blank or a comment, skip it. -->
+                                <!-- <echo></echo> -->
+                            </then>
+                            <else>
+                                <echo>Will skip import for: @{ignoreListFileLine}</echo>
+                            </else>
+                        </if>
+                    </sequential>
+                </for>
+            </then>
+            <else>
+                <echo message="No target ignore list file: '${target}.ignorefiles.properties', importing all XML objects."/>
+            </else>
+        </if>
+
+        <!-- check if buildSubset property is true. If true, build a zip file with files from icludefiles.properties only-->
+        <if>
+            <equals arg1="${buildSubset}" arg2="true"/>
+            <then>
+                <!-- look for environment specific files to include during the subset build. -->
+                <echo message="Checking for target '${target}' files to include for the subset build..."/>
+                <if>
+                    <available file="${target}.includefiles.properties"/>
+                    <then>
+                        <echo message="Found target include list file: '${target}.includefiles.properties', loading include list."/>
+                        <property name="includeFiles" value=""/>
+                        <property name="includefiles.is.found" value="true"/>
+                        <loadfile property="includeListFile" srcfile="${target}.includefiles.properties"/>
+
+                        <for param="includeListFileLine">
+                            <tokens>
+                                <file file="${target}.includefiles.properties"/>
+                            </tokens>
+                            <sequential>
+                                <var name="includeListFileLine.length" unset="true"/>
+                                <length string="@{includeListFileLine}" property="includeListFileLine.length"/>
+                                <if>
+                                    <or>
+                                        <!-- Assume the lines don't start with a comment. -->
+                                        <matches pattern="\s*\#.*$" string="@{includeListFileLine}"/>
+                                        <equals arg1="${includeListFileLine.length}" arg2="0"/>
+                                    </or>
+                                    <then>
+                                        <!-- the line is blank or a comment, skip it. -->
+                                        <!-- <echo></echo> -->
+                                    </then>
+                                    <else>
+                                        <echo>Will include: @{includeListFileLine} in the subset build</echo>
+                                    </else>
+                                </if>
+                            </sequential>
+                        </for>
+                    </then>
+                    <else>
+                        <echo message="No target include list file: '${target}.includefiles.properties'. Will skip building subset ...."/>
+                    </else>
+                </if>
+            </then>
+            <else>
+                <echo message="buildSubset Property is not set to true. Will skip building subset..."/>
+            </else>
+        </if>
+        <!-- common directories -->
+        <property name="build" location="build"/>
+        <property name="build.iiqBinaryExtract" location="${build}/extract"/>
+        <property name="build.iiqSubsetExtract" location="${build}/subset"/>
+        <property name="build.customXMLDir" location="${build.iiqBinaryExtract}/WEB-INF/config/custom"/>
+        <property name="build.subsetXMLDir" location="${build.iiqSubsetExtract}/WEB-INF/config/custom"/>
+        <property name="build.web-inf.lib" location="${build.iiqBinaryExtract}/WEB-INF/lib"/>
+        <property name="build.web-inf.classes" location="${build.iiqBinaryExtract}/WEB-INF/classes"/>
+        <property name="pluginSrc" location="pluginsrc"/>
+        <property name="dependency-check.home" value="./dependency-check-ant"/>
+        <property name="dependency-check.reports" value="${build}/dependency-check-reports"/>
+
+        <!-- common files -->
+        <property name="dtd" location="${build.iiqBinaryExtract}/sailpoint.${IIQVersion}${IIQPatchLevel}.dtd"/>
+
+        <tstamp>
+            <format property="build.zipstamp" pattern="yyyyMMdd-HHmm"/>
+        </tstamp>
+
+        <path id="dependency-check.path">
+            <pathelement location="${dependency-check.home}/dependency-check-ant.jar"/>
+        </path>
+        <taskdef resource="dependency-check-taskdefs.properties">
+            <classpath refid="dependency-check.path"/>
+        </taskdef>
+
+    </target>
+
+
+    <!-- ********************************************************* -->
+    <!-- Main                                                      -->
+    <!--    expands ga bin and applies customizations              -->
+    <!-- ********************************************************* -->
+
+    <target name="main"
+            depends="init-properties" description="makes complete iiq distribution directory">
+    	
+        <!-- Check whether the IIQ version is earlier than a given version
+        number so that we can exclude certain components from compilation
+        if they are not compatible with earlier versions -->
+        <script language="javascript">
+            <![CDATA[
+             var version = parseFloat(project.getProperty('IIQVersion'));
+             project.setProperty('pre6.2', version < 6.2 ? "true" : "false");
+             project.setProperty('pre6.3', version < 6.3 ? "true" : "false");
+             project.setProperty('pre6.4', version < 6.4 ? "true" : "false"); 
+             project.setProperty('pre7.0', version < 7.0 ? "true" : "false");
+             project.setProperty('pre7.1', version < 7.1 ? "true" : "false");
+             project.setProperty('pre7.2', version < 7.2 ? "true" : "false");
+        	 project.setProperty('pre8.0', version < 8.0 ? "true" : "false");
+           ]]>
+        </script>
+    	
+        <!-- laydown initial binaries and custom static web content -->
+        <antcall inheritall="true" target="prepBinaries"/>
+
+        <!-- delete outdated MySQL, Oracle and MSSQL JDBC drivers -->
+        <delete file="${build.web-inf.lib}/mysql-connector-java-5.1.13-bin.jar"/>
+        <delete file="${build.web-inf.lib}/ojdbc14.jar"/>
+        <delete file="${build.web-inf.lib}/sqljdbc-1.2.jar"/>
+        <!-- 
+            when you drop a new JDBC driver jar into WEB-INF/lib in the SSB project folder,
+            you need to make sure you delete the out-of-the-box JDBC driver in the same namespace. 
+            here's an example of deleting the old default 4.0 SQL Server JDBC driver if you add in the 
+            4.2 JDBC driver for the same. the new jar is called sqljdbc42.jar, but you need to clean up
+            the old jar, as they share the same namepace within.
+            <delete file="${build.web-inf.lib}/sqljdbc4.jar"/>
+        -->
+
+        <!-- Build and deploy any plugins in the plugin source folder -->
+        <if>
+            <and>
+                <not>
+                    <equals arg1="${pre7.1}" arg2="true"/>
+                </not>
+                <available file="${pluginSrc}" type="dir"/>
+            </and>
+            <then>
+                <antcall inheritall="true" target="buildPlugins"/>
+            </then>
+        </if>
+
+
+        <!-- search for custom tasks to perform on the files that will be included in the web application folder -->
+        <if>
+            <equals arg1="${runCustomScripts}" arg2="true"/>
+            <then>
+                <subant target="post.expansion.hook" inheritall="true">
+                    <fileset dir="." includes="scripts/build.custom.*.xml"/>
+                </subant>
+            </then>
+        </if>
+
+        <!-- fix for color palette in SSD Email Template Editor -->
+        <if>
+            <and>
+                <available file="scripts/build.templateeditor.fixcolors.xml"/>
+                <equals arg1="${deployEmailTemplateEditor}" arg2="true"/>
+            </and>
+            <then>
+                <subant target="templateeditor.fixcolors" inheritall="true" failonerror="false">
+                    <fileset dir="." includes="scripts/build.templateeditor.fixcolors.xml"/>
+                </subant>
+            </then>
+        </if>
+
+        <!-- compile custom java artifacts -->
+        <antcall inheritall="true" target="compile"/>
+
+        <antcall inheritall="true" target="-generateDTD"/>
+    	
+        <if>
+            <equals arg1="${includeCustomJar}" arg2="true"/>
+            <then>
+            	<antcall inheritall="true" target="includeCustomJar"/>
+            </then>
+        </if>
+
+        <!-- compile custom configuration, apply env tokens and setup init files-->
+        <antcall inheritall="true" target="prepareCustomConfig"/>
+        <if>
+            <equals arg1="${updateLog4jLoggers}" arg2="true"/>
+            <then>
+                <antcall inheritall="true" target="log4jPropsUpdate"/>
+            </then>
+        </if>
+
+        <antcall target="cleanUpFromFailure"/>
+
+        <antcall inheritall="true" target="-createVersionPage"/>
+
+    </target>
+
+    <!-- ********************************************************* -->
+    <!-- War                                                       -->
+    <!--    makes war file and applies customizations              -->
+    <!-- ********************************************************* -->
+
+    <target name="war" depends="main"
+            description="Makes war file from main target results and applies custom post war custom scripts">
+        <!-- package a war file for deployment -->
+        <war destfile="build/deploy/identityiq.war">
+            <fileset dir="${build.iiqBinaryExtract}"/>
+        </war>
+        <if>
+            <equals arg1="${runCustomScripts}" arg2="true"/>
+            <then>
+                <subant target="post.war.hook" inheritall="true" failonerror="false">
+                    <fileset dir="." includes="scripts/build.custom.*.xml"/>
+                </subant>
+            </then>
+        </if>
+        <checksum file="build/deploy/identityiq.war" forceOverwrite="yes"/>
+        <echo>A MD5 checksum was generated for this war file and placed in the war file directory. Keep this checksum to
+            diagnose potential version issues
+        </echo>
+
+        <if>
+            <and>
+                <equals arg1="${buildSubset}" arg2="true"/>
+                <available file="${build.iiqSubsetExtract}" type="dir"/>
+            </and>
+            <then>
+                <!-- package a zip file for subset deployment -->
+                <zip destfile="build/deploy/identityiqSubset.zip">
+                    <fileset dir="${build.iiqSubsetExtract}"/>
+                </zip>
+                <echo>Generated zip file for subset deployment of includefiles</echo>
+            </then>
+            <else>
+                <echo>Zip file for subset deployment(includefiles) will not be generated.</echo>
+            </else>
+        </if>
+    </target>
+
+    <!--                                                            -->
+    <!-- Target: deploy                                             -->
+    <!-- Move files over to the IdentityIQ side and import          -->
+    <!--                                                            -->
+    <target name="deploy" depends="war">
+        <echo message="Deploying build local IIQ instance: ${IIQHome}."/>
+        <unzip src="build/deploy/identityiq.war" dest="${IIQHome}" overwrite="true"/>
+        <property name="build.deployed" value="true"/>
+        <antcall target="import-custom"/>
+    </target>
+
+    <!--                                                            -->
+    <!-- Target: install                                             -->
+    <!-- Move files over to the IdentityIQ side                     -->
+    <!--                                                            -->
+    <target name="install" depends="war">
+        <echo message="Deploying build local IIQ instance: ${IIQHome}."/>
+        <unzip src="build/deploy/identityiq.war" dest="${IIQHome}" overwrite="true"/>
+        <property name="build.deployed" value="true"/>
+    </target>
+
+    <!-- ********************************************************* -->
+    <!-- Target: extractAPFiles                                    -->
+    <!-- Expands contents of accelerator pack *.hbm.xml and        -->
+    <!-- iiqCustom.properties within the SSB                       -->
+    <!-- Format of AP zip file name has changed twice so need to   -->
+    <!-- check for each naming format.                             -->
+    <!-- ********************************************************* -->
+
+    <target name="extractAPfiles" depends="init-properties" description="Extracts contents of accelerator pack hbm.xml files into SSB">
+        <if>
+            <available file="base/ap/Accelerator_Pack-${IIQVersion}-${acceleratorPackVersion}.zip"/>
+            <then>
+                <property name="acceleratorPackZipName" value="Accelerator_Pack-${IIQVersion}-${acceleratorPackVersion}.zip"/>
+            </then>
+        </if>
+        <if>
+            <available file="base/ap/Accelerator_Pack_${IIQVersion}-${acceleratorPackVersion}.zip"/>
+            <then>
+                <property name="acceleratorPackZipName" value="Accelerator_Pack_${IIQVersion}-${acceleratorPackVersion}.zip"/>
+            </then>
+        </if>
+        <if>
+            <available file="base/ap/Accelerator_Pack-${acceleratorPackVersion}.zip"/>
+            <then>
+                <property name="acceleratorPackZipName" value="Accelerator_Pack-${acceleratorPackVersion}.zip"/>
+            </then>
+        </if>
+
+        <if>
+            <or>
+                <equals arg1="${acceleratorPackZipName}" arg2=""/>
+                <not>
+                    <isset property="acceleratorPackZipName"/>
+                </not>
+            </or>
+            <then>
+                <property name="critical.failure"
+                          value="Could not find Accelerator Pack binaries for the specified Accelerator Pack version ${acceleratorPackVersion} and IdentityIQ version ${IIQVersion} in the /base/ap directory.
+                          You can download these files from https://community.sailpoint.com "/>
+                <fail message="${critical.failure}"/>
+            </then>
+        </if>
+
+
+        <trycatch property="critical.failure">
+            <try>
+                <echo>Overlaying Object Properties XML files onto SSB</echo>
+                <unzip dest="ap-merge" src="base/ap/${acceleratorPackZipName}">
+                    <cutdirsmapper dirs="5"/>
+                    <patternset>
+                        <include name="web/WEB-INF/classes/sailpoint/object/*.hbm.xml"/>
+                    </patternset>
+                </unzip>
+
+                <unzip dest="ap-merge" src="base/ap/${acceleratorPackZipName}">
+                    <cutdirsmapper dirs="6"/>
+                    <patternset>
+                        <include name="web/WEB-INF/classes/sailpoint/web/messages/iiqCustom.properties"/>
+                    </patternset>
+                </unzip>
+            </try>
+            <catch>
+                <echo>Critical failure while extracting Accelerator Pack zip file.
+                </echo>
+                <fail message="${critical.failure}"/>
+            </catch>
+        </trycatch>
+    </target>
+    <!--                                                                                 -->
+    <!-- Target: log4jPropsUpdate                                                        -->
+    <!-- Updates log4j.properties with any loggers that appear in files in custom folder -->
+	<!-- or source code under the src folder.                                            -->
+    <!--                                                                                 -->
+    <target name="log4jPropsUpdate">
+        <echo message="Generating custom log4j properties file..."/>
+        <if>
+            <not>
+                <equals arg1="${pre8.0}" arg2="true"/>
+            </not>
+            <then>
+                <property name="log4jdestination" value="${build.web-inf.classes}/log4j2.properties"/>
+                <property name="log4jbackup" value="${build.web-inf.classes}/log4j2.properties.orig"/>
+                <property name="log4jtmp" value="${build.web-inf.classes}/log4j2.properties.log4jupdate_tmp"/>
+            </then>
+            <else>
+                <property name="log4jdestination" value="${build.web-inf.classes}/log4j.properties"/>
+                <property name="log4jbackup" value="${build.web-inf.classes}/log4j.properties.orig"/>
+                <property name="log4jtmp" value="${build.web-inf.classes}/log4j.properties.log4jupdate_tmp"/>
+            </else>
+        </if> 
+        
+        <if>
+            <!-- Test for the log4j file before continuing -->
+            <not>
+                <and>
+                    <available file="${log4jdestination}"/>
+                </and>
+            </not>
+            <then>
+                <fail message="Error: Can't find '${log4jdestination}', something went wrong... ${line.separator}"/>
+            </then>
+        </if>
+        <!-- File must be copied every time, due to the fact main 
+        task is not overwriting it every time and we are concatenating 
+        log config on every build -->
+        
+        <if>
+            <not>
+                <and>
+                    <available file="${log4jbackup}"/>
+                </and>
+            </not>
+            <then>
+                <copy file="${log4jdestination}"  tofile="${log4jbackup}" overwrite="true"/>
+            </then>
+            <else>
+                 <copy file="${log4jbackup}"  tofile="${log4jdestination}" overwrite="true"/>
+            </else>
+        </if>
+
+        <echo file="${log4jdestination}" append="true">
+# ===================================================================
+# The lines below have been dynamically added via the build script
+# ===================================================================
+        </echo> 
+ 
+        <if>
+            <not>
+                <equals arg1="${pre8.0}" arg2="true"/>
+            </not>
+            <then>    
+                <!-- Log4j2 format for IdentityIQ 8.0+ -->
+                <concat destfile="${log4jtmp}" append="true">
+                    <fileset dir="${build.customXMLDir}/">
+                        <filename name="**/*.xml"/>
+                    </fileset>
+                    <filterchain>
+                        <linecontainsregexp>
+                            <regexp pattern=".*=.*(Logger.getLogger|LogFactory.getLog)"/>
+                        </linecontainsregexp>
+                        <deletecharacters chars="\t"/>
+                        <deletecharacters chars=" "/>
+                                <tokenfilter>
+                                    <replaceregex pattern=".*=.*(Logger.getLogger|LogFactory.getLog)\s*\(\s*&quot;" replace=""/>
+                                    <replaceregex pattern="&quot;\s*\)\s*;" replace=""/>
+
+                                    <replaceregex pattern="(.*)" replace="\1.name=\1${line.separator}\1.level=trace"/>
+                                    <replaceregex pattern="(\.)(?=(.*\.name=.*))" replace="" flags="g"/>
+                                    <replaceregex pattern="(\.)(?=(.*\.level=.*))" replace="" flags="g"/>
+                                </tokenfilter>
+                                <prefixlines prefix="#logger."/>
+                    </filterchain>       
+                </concat> 
+            </then>
+            <else>
+                <!-- Log4j format for older versions -->
+                <concat destfile="${log4jtmp}" append="true">
+                    <fileset dir="${build.customXMLDir}/">
+                        <filename name="**/*.xml"/>
+                    </fileset>
+                    <filterchain>
+                        <linecontainsregexp>
+                            <regexp pattern=".*=.*(Logger.getLogger|LogFactory.getLog)"/>
+                        </linecontainsregexp>
+                        <deletecharacters chars="\t"/>
+                        <deletecharacters chars=" "/>
+                        <tokenfilter>
+                            <replaceregex pattern=".*=.*(Logger.getLogger|LogFactory.getLog)\s*\(\s*&quot;" replace=""/>
+                            <replaceregex pattern="&quot;\s*\)\s*;" replace="=trace"/>
+                        </tokenfilter>
+                        <prefixlines prefix="#log4j.logger."/>
+                    </filterchain>       
+                </concat> 
+            </else>
+        </if>
+ 
+        <if>
+            <available file="${log4jtmp}"/>
+            <then>
+                <loadfile property="loggerEntries" srcFile="${log4jtmp}"/>
+
+                <for list="${loggerEntries}" param="logLine" delimiter="${line.separator}">
+
+                    <sequential>    
+                        <!-- Remove stray new line chars before comparison -->
+                        <var name="cleanLogLine" unset="true"/> 
+                        <propertyregex property="cleanLogLine"
+                              input="@{logLine}"
+                              regexp="[\r\n]+"
+                              replace=""
+                              defaultValue="@{logLine}"
+                              casesensitive="false" />
+                        <if>
+                            <not>
+                                <resourcecontains resource="${log4jdestination}" substring="${cleanLogLine}"/>
+                            </not>
+                            <then>
+                                <var name="thisLogLine" unset="true"/> 
+                                <propertyregex property="thisLogLine"
+                                      input="${cleanLogLine}"
+                                      regexp="level=trace"
+                                      replace="level=trace${line.separator}"
+                                      defaultValue="${cleanLogLine}"
+                                      casesensitive="false" />
+                                <echo file="${log4jdestination}" append="true">${line.separator}${thisLogLine}</echo>
+                            </then>  
+                        </if> 
+                        
+                    </sequential>
+                </for>
+               <delete file="${log4jtmp}"/>
+            </then>
+        </if>
+        <property name="srcDir" location="src"/>
+        <for param="file">
+          <path>
+            <fileset dir="src">
+                <filename name="**/*.java"/>
+            </fileset>
+          </path>
+         
+          <sequential>
+            <var name="rawClassName"  unset="true"/>
+            <var name="className"  unset="true"/>
+            <var name="relativePth"  unset="true"/>
+            <var name="loggerName"  unset="true"/>
+            <pathconvert property="relativePth">
+                <file file="@{file}" />
+                    <!-- pathconvert strips off the leading ${basedir}/js -->
+                <map from="${srcDir}" to="" />
+            </pathconvert>
+            <propertyregex property="rawClassName"
+                      input="${relativePth}"
+                      regexp="[\\\/]*(.*)\.java"
+                      select="\1"
+                      casesensitive="false" />        
+            <propertyregex property="className"
+                      input="${rawClassName}"
+                      regexp="[\\\/]"
+                      replace="."
+                      casesensitive="false" />
+            <propertyregex property="loggerName"
+                      input="${className}"
+                      regexp="\."
+                      replace=""
+                      global="true"
+                      casesensitive="false" />
+
+            <if>
+                <not>
+                    <equals arg1="${pre8.0}" arg2="true"/>
+                </not>
+                <then>
+                    <echo file="${log4jdestination}" append="true">${line.separator}#logger.${loggerName}.name=${className}${line.separator}#logger.${loggerName}.level=trace${line.separator}</echo>
+                </then>
+                <else>
+                    <echo file="${log4jdestination}" append="true">${line.separator}#log4j.logger.${className}=trace</echo>
+                </else>
+            </if>
+          </sequential>
+        </for>
+    </target>
+
+    <!-- ********************************************************* -->
+    <!-- CleanUpFromFailure                                        -->
+    <!--    Catch all clean up task for detected failures.
+            Any target that can leave the build in a bad state on error should
+            set the "critical.failure" property with an appropriate error
+            message and clean up its artifacts.                   -->
+    <!-- ********************************************************* -->
+    <!-- -->
+    <target name="cleanUpFromFailure" if="critical.failure">
+        <antcall target="clean"/>
+        <fail message="${critical.failure}"/>
+    </target>
+
+    <target name="clean" depends="init-properties">
+        <!-- search for custom clean tasks -->
+        <if>
+            <equals arg1="${runCustomScripts}" arg2="true"/>
+            <then>
+                <subant target="clean" inheritall="true">
+                    <fileset dir="." includes="scripts/build.custom.*.xml"/>
+                </subant>
+            </then>
+        </if>
+        <delete dir="build" deleteonexit="true"/>
+    </target>
+
+    <!-- clean up web dir, with safety prompts -->
+    <target name="cleanWeb"
+            description="deletes web directory as specified by variable IIQHome. you may need to stop the web server before using this target."
+            depends="init-properties">
+        <if>
+            <equals arg1="${override.safety.prompts}" arg2="false"/>
+            <then>
+                <input
+                        message="Are you sure you want to delete the web app directory [ ${IIQHome} ]?   continue (y/n)?"
+                        validargs="y,n"
+                        addproperty="do.delete"
+                />
+                <condition property="do.abort">
+                    <equals arg1="n" arg2="${do.delete}"/>
+                </condition>
+                <fail if="do.abort">cleanWeb target aborted by user.</fail>
+            </then>
+        </if>
+        <echo>Deleting ${IIQHome}</echo>
+        <delete dir="${IIQHome}" deleteonexit="true"/>
+        <echo>Done!</echo>
+    </target>
+
+    <!-- Ant task to build a time-stamped deployment zip file.  This   -->
+    <!-- helps automate the procedure of deploying to Dev, Test, Prod. -->
+    <!-- Files get named this: PROJNAME-customizations-20110217-1053.zip  -->
+    <target name="zipfile" depends="init-properties">
+        <delete file="${ant.project.name}-customizations.zip"/>
+        <delete file="${ant.project.name}-customizations-*.zip"/>
+        <echo message="Building zipfile named ${ant.project.name}-customizations-${build.zipstamp}.zip ..."/>
+        <zip destfile="${ant.project.name}-customizations-${build.zipstamp}.zip"
+             excludes="**/CVS/**,**/SCCS/**,**/SCCS/**,**/rcs/**,**/.DS_Store/**,**/.svn/**,**/*.pyc/**,**/.pyo/**,**/.git/**,**/*.hprof/**,**/_svn/**,**/.hg/**">
+            <!-- excludes skips files in sub-directories that are managed by version control systems. -->
+            <!-- explicitly include certain directories of the build tree: -->
+            <fileset dir="." includes="build.*"/>
+            <fileset dir="." includes="*.properties"/>
+            <fileset dir="." includes="target*common"/>
+            <fileset dir="." includes="StandardServices*.*"/>
+            <fileset dir="." includes="ServicesStd*.*"/>
+            <zipfileset dir="base/" prefix="base/"/>
+            <zipfileset dir="config/" prefix="config/"/>
+            <zipfileset dir="db/" prefix="db/"/>
+            <zipfileset dir="lib/" prefix="lib/"/>
+            <zipfileset dir="scripts/" prefix="scripts/"/>
+            <zipfileset dir="src/" prefix="src/"/>
+            <zipfileset dir="web/" prefix="web/"/>
+        </zip>
+    </target>
+
+    <!-- 
+    example target for performing initial build
+     -->
+    <target name="initial-build"
+            description="can perform a repeatable, initial build of IIQ. requires planning for proper execution. see SSB guide for details.">
+        <echo>Doing intial build</echo>
+
+        <antcall target="clean"/>
+        <antcall target="cleanWeb"/>
+        <antcall target="main"/>
+        <antcall target="createdb"/>
+        <antcall target="extenddb"/>
+        <antcall target="import-stock"/>
+        <antcall target="import-lcm"/>
+        <antcall target="patchdb"/>
+        <antcall target="runUpgrade"/>
+        <antcall target="import-custom"/>
+        <antcall target="dist"/>
+
+        <echo>Done with intial build</echo>
+    </target>
+
+    <target name="dependency-check" depends="main" description="Dependency-Check Analysis">
+        <dependency-check projectname="IdentityIQ"
+                          reportoutputdirectory="${dependency-check.reports}"
+                          reportformat="ALL">
+            <suppressionfile path="${dependency-check.home}/suppressions.xml"/>
+            <fileset dir="${build.iiqBinaryExtract}/WEB-INF/lib">
+                <include name="**/*.jar"/>
+            	<exclude name="**/*ojdbc*"/>
+            </fileset>
+            <fileset dir="${build.iiqBinaryExtract}/WEB-INF/lib-connectors" erroronmissingdir="false">
+                <include name="**/*.jar"/>
+            	<exclude name="**/*ojdbc*"/>
+            </fileset>        	
+        </dependency-check>
+    </target>
+</project>

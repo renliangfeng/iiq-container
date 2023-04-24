@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="services.standard.build.plugins.xml">
+        
+    <target name="buildPlugin">
+        <!-- We need a name for the plugin so we'll use the folder it's located in -->
+        <basename property="pluginName" file="${pluginHomeDir}"/>
+        
+        <property name="pluginBuild" location="${pluginBuildDir}/${pluginName}" />
+        <property name="pluginLib" location="${pluginBuild}/lib" />
+        <property name="pluginClasses" location="${pluginBuild}/classes" />
+        <property name="pluginContents" location="${pluginBuild}/contents" />
+        <property name="pluginDist" location="${pluginBuild}/dist" />       
+        
+        <echo message="Applying Custom Plugin ${pluginName} to build"/>
+
+        <if>
+            <available file="${pluginSrc}/${pluginName}/manifest.xml"/>
+            <then>
+                <echo>Found a manifest.xml file for ${pluginName}</echo>
+            	    <if>
+            	    		<available file="${pluginSrc}/${pluginName}/src" type="dir"/>
+            	    		<then>
+		            		<fileset dir="${pluginSrc}/${pluginName}/src" includes="**/*.java" id="javapresent"/> 
+		            		<if>
+		            			<not>
+		            				<equals arg1="${toString:javapresent}" arg2=""/>
+		            			</not>
+		            	    		<then>
+		            				<mkdir dir="${pluginClasses}"/>
+				                <javac srcdir="${pluginSrc}/${pluginName}/src" destdir="${pluginClasses}"
+				                       includeantruntime="false" source="1.8" target="1.8">
+				                    <classpath>
+				                        <pathelement path="${build.iiqBinaryExtract}/WEB-INF/classes"/>
+				                        <fileset dir="${build.iiqBinaryExtract}/WEB-INF/lib">
+				                            <include name="*.jar"/>
+				                        </fileset>
+				                    </classpath>
+				                    <compilerarg value="-Xlint:deprecation" />
+				                    <compilerarg value="-Xlint:unchecked" />
+				                </javac>
+				                
+				                <echo message="Adding to ${pluginLib}/${pluginName}.jar"/>
+				                <mkdir dir="${pluginLib}" />
+				                <jar destfile="${pluginLib}/${pluginName}.jar">
+				                    <fileset dir="${pluginClasses}">
+				                        <include name="**/*" />
+				                    </fileset>
+				                </jar>
+		            			</then>
+		            			<else>
+            	    					<echo message="Plugin ${pluginName} has no java files to compile"/>
+            					</else>
+		            	    	</if>              
+            	    		</then>
+            	    		<else>
+            	    			<echo message="Plugin ${pluginName} has no src folder"/>
+            	    		</else>
+            	    		
+            	    	</if>
+                <copy todir="${pluginBuild}">
+                    <fileset dir="${pluginSrc}">
+                        <include name="lib/*.jar" />
+                    </fileset>
+                </copy>
+
+                <mkdir dir="${pluginContents}" />
+                <copy todir="${pluginContents}">
+                    <fileset dir="${pluginSrc}/${pluginName}">
+                        <include name="manifest.xml" />
+                        <include name="db/**" />
+                        <include name="import/**" />
+                        <include name="lib/*.jar" />
+                        <include name="ui/**" />
+                    </fileset>
+                    <fileset dir="${pluginBuild}">
+                        <include name="lib/*.jar" />
+                    </fileset>
+                </copy>
+                <mkdir dir="${pluginDist}" />
+                <zip encoding="UTF-8" baseDir="${pluginContents}" destfile="${pluginDist}/${pluginName}.zip">  
+                </zip>
+                <!-- Copy it over to the folder we use for auto-installation of plugins at server start-up -->
+                <copy file="${pluginDist}/${pluginName}.zip" tofile="${pluginInstall}/${pluginName}.zip"/>  
+            </then>
+            <else>
+                <fail message="Could not find a manifest.xml file for plugin ${pluginName}"/>
+            </else>
+        </if>     
+        
+    </target>
+    
+    
+    <target name="buildPlugins">
+
+        <property name="pluginBuildDir" location="${build}/plugins"/>
+        <mkdir dir="${pluginBuildDir}"/>
+        
+        <property name="pluginInstall" location="${build.iiqBinaryExtract}/WEB-INF/plugins/ssb/install"/>
+        <mkdir dir="${pluginInstall}"/> 
+           
+        <echo message="Applying Custom Plugins to build"/>
+        <antcall inheritall="true" target="cleanPluginBuildDir"/>
+        <foreach inheritall="true" target="buildPlugin" param="pluginHomeDir">   
+           <path>
+              <dirset dir="${pluginSrc}" includes="*"/>
+           </path>
+        </foreach>
+    </target>
+
+    <target name="cleanPluginBuildDir">
+       <delete dir="${pluginBuildDir}"/>
+    </target>
+    
+    
+</project>

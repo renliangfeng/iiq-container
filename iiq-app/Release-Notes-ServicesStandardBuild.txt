@@ -1,0 +1,73 @@
+Release: SSB v7.0.1 GA
+Released: January 2023 
+
+****************************************
+OVERVIEW OF RELEASE
+****************************************
+
+Version 7.0.1 of the Services Standard Build (SSB) contains several updates, fixes and 
+enhancements.
+
+****************************************
+NEW TO THIS RELEASE:
+****************************************
+
+- Security updates
+
+****************************************
+NEW in v7:
+****************************************
+- Support added for deployment of Rapid Setup
+- Support added for deployment of integration components for Privileged Access Management, 
+  File Access Manager, Cloud Access Management and AI Services, if your implementation
+  includes these additional services.
+- Fixed issue with SSB subset builds failing.
+- Added classes-connectors and lib-connectors to SSB classpath for correct compilation of
+  custom connectors.
+- Added the ability to define whether the custom jar created from custom Java code gets 
+  included in the build (see SSB User Guide).
+- A number of vulnerabilities have been fixed in various components in the SSB.
+      
+Please refer to the SSB User Guide.
+
+
+IMPORTANT: Ant is no longer provided with the SSB and must be supplied by the implementer.
+
+- Latest version of Ant should be downloaded and made available in the path for execution 
+	For Unix & Mac systems: 
+		export ANT_HOME=<Location of ant> (eg: $HOME/build_tools/apache-ant-1.10.9)
+		export PATH=$PATH:$ANT_HOME/bin
+
+	For Windows Machines (SET is for current process space, to set the variables globally use syntax for SETX or use UI to set the variables)
+		SET ANT_HOME=<Location of ant> (eg: D:\build_tools\apache-ant-1.10.9)
+		SET PATH=%ANT_HOME%\bin;%PATH%
+	
+- If variables cannot be set, update the following lines
+	build.sh (for unix machines) - ant $@  to <ANT_HOME>/bin/ant $@ (e.g.: $HOME/build_tools/apache-ant-1.10.9/bin/ant $@)
+	build.bat (for windows machines) - ant %* to <ANT_HOME>\bin\ant %* (e.g.:  D:\build_tools\apache-ant-1.10.9\bin\ant %*)
+
+
+The following SSB components have been removed:
+
+- SSB Build Checks (will be replaced with a PS Extension plugin)
+- SSB Document Generator / 'document' Ant target (new documentation tools are planned
+  as PS Extensions)
+
+
+****************************************
+NOTES
+****************************************
+
+JDK version 7 is no longer supported in the SSB/SSD.
+
+To assist the SailPoint Support team, the version of the SSB or SSD used to build 
+IdentityIQ can now be seen by accessing the ServicesStandardVersion.html file at the root
+of the application (e.g. http://servername:8080/ServicesStandardVersion.html).  This
+information is taken from these release notes, so please do not delete this file or move
+it from its current location, and do not delete the html file that is generated during the
+build process.  The page also includes a timestamp indicating the last time the build was
+executed.
+
+
+The SSB is part of the Services Standard Deployment (SSD).  For more details please visit:
+https://community.sailpoint.com/community/identityiq/sailpoint-toolkits/standard-services-deployment

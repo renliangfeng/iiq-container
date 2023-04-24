@@ -1,0 +1,329 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<suppressions xmlns="https://jeremylong.github.io/DependencyCheck/dependency-suppression.1.1.xsd">
+
+	<suppress>
+        <notes><![CDATA[
+        This suppresses all CVE entries that have a score below CVSS 7.
+        ]]></notes>
+        <cvssBelow>7</cvssBelow>
+    </suppress>
+       
+  <suppress>
+       <notes><![CDATA[
+        This suppresses CVE-2017-5662 for batik-awt-util-1.6-1.jar.
+        The documented CVE for this version of this library is related to an XML Entity Attack while parsing SVG files.  
+        IdentityIQ does not contain any support for SVG formatted files or parsing of them and therefore is not vulnerable.
+        ]]></notes>
+        <filePath regex="true">.*[/\\]bbatik-awt-util-1\.6-1\.jar</filePath>
+        <cve>CVE-2017-5662</cve>
+  </suppress>
+
+  <suppress>
+       <notes><![CDATA[
+        This suppresses CVE-2017-5662 for batik-util-1.6-1.jar.
+        The documented CVE for this version of this library is related to an XML Entity Attack while parsing SVG files.  
+        IdentityIQ does not contain any support for SVG formatted files or parsing of them and therefore is not vulnerable.
+        ]]></notes>
+        <filePath regex="true">.*[/\\]bbatik-util-1\.6-1\.jar</filePath>
+        <cve>CVE-2017-5662</cve>
+  </suppress>
+
+  <suppress>
+       <notes><![CDATA[
+        This suppresses CVE-2017-5662 for batik-gui-util-1.6-1.jar.
+        The documented CVE for this version of this library is related to an XML Entity Attack while parsing SVG files.  
+        IdentityIQ does not contain any support for SVG formatted files or parsing of them and therefore is not vulnerable.
+        ]]></notes>
+        <filePath regex="true">.*[/\\]bbatik-gui-util-1\.6-1\.jar</filePath>
+        <cve>CVE-2017-5662</cve>
+  </suppress>
+
+  <suppress>
+       <notes><![CDATA[
+        This suppresses CVE-2014-0114 for commons-beanutils-bean-collections.jar.
+        The identified vulnerability is related to deserialization of XML and exploiting the runtime loading of Java classes 
+        by using the XML attribute named class.  None of IdentityIQ’s XML deserialization implementations allow the use of a 
+        class attribute to dynamically load Java classes, so IdentityIQ is not vulnerable.
+        ]]></notes>
+        <filePath regex="true">.*[/\\]bcommons-beanutils-bean-collections\.jar</filePath>
+        <cve>CVE-2014-0114</cve>
+  </suppress>
+
+  <suppress>
+       <notes><![CDATA[
+        This suppresses CVE-2015-6420 for commons-beanutils-bean-collections.jar.
+        IdentityIQ is not vulnerable to the Java serialization issues that define this CVE.
+        ]]></notes>
+        <filePath regex="true">.*[/\\]bcommons-beanutils-bean-collections\.jar</filePath>
+        <cve>CVE-2015-6420</cve>
+  </suppress>
+
+  <suppress>
+       <notes><![CDATA[
+        This suppresses CVE-2017-15708 for commons-beanutils-bean-collections.jar.
+        IdentityIQ is not vulnerable to the Java serialization issues that define this CVE.
+        ]]></notes>
+        <filePath regex="true">.*[/\\]bcommons-beanutils-bean-collections\.jar</filePath>
+        <cve>CVE-2017-15708</cve>
+  </suppress>
+
+  <suppress>
+       <notes><![CDATA[
+        This suppresses CVE-2014-0114 for commons-beanutils-core.jar.
+        The identified vulnerability is related to deserialization of XML and exploiting the runtime loading of Java classes 
+        by using the XML attribute named class.  None of IdentityIQ’s XML deserialization implementations allow the use of a 
+        class attribute to dynamically load Java classes, so IdentityIQ is not vulnerable.
+        ]]></notes>
+        <filePath regex="true">.*[/\\]bcommons-beanutils-core\.jar</filePath>
+        <cve>CVE-2014-0114</cve>
+  </suppress>
+
+  <suppress>
+       <notes><![CDATA[
+        This suppresses CVE-2014-0114 for commons-beanutils.jar.
+        The identified vulnerability is related to deserialization of XML and exploiting the runtime loading of Java classes 
+        by using the XML attribute named class.  None of IdentityIQ’s XML deserialization implementations allow the use of a 
+        class attribute to dynamically load Java classes, so IdentityIQ is not vulnerable.
+        ]]></notes>
+        <filePath regex="true">.*[/\\]bcommons-beanutils\.jar</filePath>
+        <cve>CVE-2014-0114</cve>
+  </suppress>
+
+  <suppress>
+       <notes><![CDATA[
+        This suppresses CVE-2015-6420 for commons-collections-3.2.jar.
+        IdentityIQ is not vulnerable to the Java serialization issues that define this CVE.
+        ]]></notes>
+        <filePath regex="true">.*[/\\]bcommons-collections-3\.2\.jar</filePath>
+        <cve>CVE-2015-6420</cve>
+  </suppress>
+
+  <suppress>
+       <notes><![CDATA[
+        This suppresses CVE-2017-15708 for commons-collections-3.2.jar.
+        IdentityIQ is not vulnerable to the Java serialization issues that define this CVE.
+        ]]></notes>
+        <filePath regex="true">.*[/\\]bcommons-collections-3\.2\.jar</filePath>
+        <cve>CVE-2017-15708</cve>
+  </suppress>
+
+  <suppress>
+       <notes><![CDATA[
+        This suppresses CVE-2016-3092 for commons-fileupload-1.2.1.jar.
+        File upload capabilities in IdentityIQ are only available to administrators; they could create DOS issues much 
+        easier than specially crafted HTTP posts, and they typically have a vested interest in IdentityIQ remaining up and 
+        functional. The latest commons-fileupload jar file can be placed into any IdentityIQ installation.  As we have 
+        upgraded this library over time, we have not had to make product changes to accommodate the newer library.  
+        NOTE: In general, third-party libraries should not be upgraded independent of official product releases. IdentityIQ 
+        7.2 contains version 1.3.2 of this library. IdentityIQ 7.3 will contain version 1.3.3 of this library.
+        ]]></notes>
+        <filePath regex="true">.*[/\\]bcommons-fileupload-1\.2\.1\.jar</filePath>
+        <cve>CVE-2016-3092</cve>
+  </suppress>
+
+  <suppress>
+       <notes><![CDATA[
+        This suppresses CVE-2016-3092 for commons-fileupload-1.3.1.jar.
+        File upload capabilities in IdentityIQ are only available to administrators; they could create DOS issues much 
+        easier than specially crafted HTTP posts, and they typically have a vested interest in IdentityIQ remaining up and 
+        functional. The latest commons-fileupload jar file can be placed into any IdentityIQ installation.  As we have 
+        upgraded this library over time, we have not had to make product changes to accommodate the newer library.  
+        NOTE: In general, third-party libraries should not be upgraded independent of official product releases. IdentityIQ 
+        7.2 contains version 1.3.2 of this library. IdentityIQ 7.3 will contain version 1.3.3 of this library.
+        ]]></notes>
+        <filePath regex="true">.*[/\\]bcommons-fileupload-1\.3\.1\.jar</filePath>
+        <cve>CVE-2016-3092</cve>
+  </suppress>
+
+  <suppress>
+       <notes><![CDATA[
+        This suppresses CVE-2016-1000031 for commons-fileupload-1.3.1.jar.
+        Apache has stated that this does not represent a valid vulnerability in Apache Commons File Upload.  Please see the
+        CVE details for more information.
+        ]]></notes>
+        <filePath regex="true">.*[/\\]bcommons-fileupload-1\.3\.1\.jar</filePath>
+        <cve>CVE-2016-1000031</cve>
+  </suppress>
+
+  <suppress>
+       <notes><![CDATA[
+        This suppresses CVE-2016-1000031 for commons-fileupload-1.3.2.jar.
+        Apache has stated that this does not represent a valid vulnerability in Apache Commons File Upload.  Please see the
+        CVE details for more information.
+        ]]></notes>
+        <filePath regex="true">.*[/\\]bcommons-fileupload-1\.3\.2\.jar</filePath>
+        <cve>CVE-2016-1000031</cve>
+  </suppress>
+
+  <suppress>
+       <notes><![CDATA[
+        This suppresses CVE-2008-3891 for gdata-appsforyourdomain-1.0.jar.
+        The SAML Single Sign-On (SSO) Service for Google Apps contained a vulnerability that could have allowed an attacker
+        to gain access to a user's Google account.  Google has addressed this issue by changing the behavior of their SSO 
+        implemenation.  Administrators and developers were required to update their identity provider to provide a valid 
+        recipient field in their assertions.
+        ]]></notes>
+        <filePath regex="true">.*[/\\]bgdata-appsforyourdomain-1\.0\.jar</filePath>
+        <cve>CVE-2008-3891</cve>
+  </suppress>
+
+  <suppress>
+       <notes><![CDATA[
+        This suppresses CVE-2015-0254 for jstl-1.2.jar
+        The Apache Standard Taglibs implementation is used to parse JavaServer Faces documents provided by the product and 
+        is not used on user input.  None of the documents provided in IdentityIQ contain the x:parse or x:transform tags, 
+        therefore IdentityIQ is not vulnerable.
+        ]]></notes>
+        <filePath regex="true">.*[/\\]bjstl-1\.2\.jar</filePath>
+        <cve>CVE-2015-0254</cve>
+  </suppress>
+
+  <suppress>
+       <notes><![CDATA[
+        This suppresses CVE-2011-2730 for spring-dao-2.0.8.jar.
+        The vulnerability is related to Expression Language Injection in Spring EL tags.  IdentityIQ does not use Spring EL 
+        tags, so is not affected by the documented vulnerability.
+        ]]></notes>
+        <filePath regex="true">.*[/\\]bspring-dao-2\.0\.8\.jar</filePath>
+        <cve>CVE-2011-2730</cve>
+  </suppress>
+
+  <suppress>
+       <notes><![CDATA[
+        This suppresses CVE-2018-1270 for spring-dao-2.0.8.jar.
+        IdentityIQ’s use of the Spring framework is very limited.  It does not use STOMP over WebSocket endpoints, which
+        this CVE is related to, so it is not affected by this vulnerability.
+        ]]></notes>
+        <filePath regex="true">.*[/\\]bspring-dao-2\.0\.8\.jar</filePath>
+        <cve>CVE-2018-1270</cve>
+  </suppress>
+
+  <suppress>
+       <notes><![CDATA[
+        This suppresses CVE-2011-2730 for spring-support-2.0.8.jar.
+        The vulnerability is related to Expression Language Injection in Spring EL tags.  IdentityIQ does not use Spring EL
+        tags, so is not affected by the documented vulnerability.
+        ]]></notes>
+        <filePath regex="true">.*[/\\]bspring-support-2\.0\.8\.jar</filePath>
+        <cve>CVE-2011-2730</cve>
+  </suppress>
+
+  <suppress>
+       <notes><![CDATA[
+        This suppresses CVE-2018-1270 for spring-support-2.0.8.jar.
+        IdentityIQ’s use of the Spring framework is very limited.  It does not use STOMP over WebSocket endpoints, which
+        this CVE is related to, so it is not affected by this vulnerability.
+        ]]></notes>
+        <filePath regex="true">.*[/\\]bspring-support-2\.0\.8\.jar</filePath>
+        <cve>CVE-2018-1270</cve>
+  </suppress>
+
+  <suppress>
+       <notes><![CDATA[
+        This suppresses CVE-2011-2730 for spring-1.2.6.jar.
+        The vulnerability is related to Expression Language Injection in Spring EL tags.  IdentityIQ does not use Spring EL
+        tags, so is not affected by the documented vulnerability.
+        ]]></notes>
+        <filePath regex="true">.*[/\\]bspring-1\.2\.6\.jar</filePath>
+        <cve>CVE-2011-2730</cve>
+  </suppress>
+
+  <suppress>
+       <notes><![CDATA[
+        This suppresses CVE-2018-1270 for spring-1.2.6.jar.
+        IdentityIQ’s use of the Spring framework is very limited.  It does not use STOMP over WebSocket endpoints, which
+        this CVE is related to, so it is not affected by this vulnerability.
+        ]]></notes>
+        <filePath regex="true">.*[/\\]bspring-1\.2\.6\.jar</filePath>
+        <cve>CVE-2018-1270</cve>
+  </suppress>
+
+  <suppress>
+       <notes><![CDATA[
+        This suppresses CVE-2018-1270 for Spring 4.3.5 Release.
+        IdentityIQ’s use of the Spring framework is very limited.  It does not use STOMP over WebSocket endpoints, which
+        this CVE is related to, so it is not affected by this vulnerability.
+        ]]></notes>
+        <filePath regex="true">.*[/\\]bspring-.*-4\.3\.5\.RELEASE\.jar</filePath>
+        <cve>CVE-2018-1270</cve>
+  </suppress>
+
+  <suppress>
+       <notes><![CDATA[
+        This suppresses CVE-2018-1275 for Spring 4.3.5 Release.
+        IdentityIQ’s use of the Spring framework is very limited.  It does not use STOMP over WebSocket endpoints, which
+        this CVE is related to, so it is not affected by this vulnerability.
+        ]]></notes>
+        <filePath regex="true">.*[/\\]bspring-.*-4\.3\.5\.RELEASE\.jar</filePath>
+        <cve>CVE-2018-1275</cve>
+  </suppress>
+
+  <suppress>
+       <notes><![CDATA[
+        This suppresses CVE-2014-0107 for xalan-2.7.0.jar.
+        The documented CVE is related to the TransformerFactory not properly restricting access to certain properties when 
+        the FEATURE_SECURE_PROCESSING mode is enabled. IdentityIQ does not use the transformer functionality for user 
+        supplied input and does not use the FEATURE_SECURE_PROCESSING mode, so is not dependent on the library appropriately
+        restricting access, and therefore is not vulnerable.
+        ]]></notes>
+        <filePath regex="true">.*[/\\]bxalan-2\.7\.0\.jar</filePath>
+        <cve>CVE-2014-0107</cve>
+  </suppress>
+
+  <suppress>
+       <notes><![CDATA[
+        This suppresses CVE-2020-10683 for dom4j-2.1.1.jar.
+        The CVE listed for this library is related to external entity references.  This library is only used by Hibernate, 
+        IdentityIQ's persistence layer, and external entity references in parsed XML is not allowed, so IdentityIQ is not 
+        affected by this vulnerability.  For the purpose of removing the false positive, dom4j is upgraded to 2.1.3 in 
+        IdentityIQ 8.2.
+        ]]></notes>
+        <filePath regex="true">.*[/\\]dom4j-2\.1\.1\.jar</filePath>
+        <cve>CVE-2020-10683</cve>
+  </suppress>
+
+  <suppress>
+       <notes><![CDATA[
+        This suppresses multiple CVEs for javax.faces-2.2.20.jar.
+        All of the listed vulnerabilities are for Oracle Internet Application Server and not for JavaServer Faces (JSF), so
+        they do not apply to IdentityIQ.
+        ]]></notes>
+        <filePath regex="true">.*[/\\]javax\.faces-2\.2\.20\.jar</filePath>
+        <cve>CVE-2000-1236</cve>
+        <cve>CVE-2002-0655</cve>
+        <cve>CVE-2002-0656</cve>
+        <cve>CVE-2004-1362</cve>
+        <cve>CVE-2004-1363</cve>
+        <cve>CVE-2004-1364</cve>
+        <cve>CVE-2004-1368</cve>
+        <cve>CVE-2004-1370</cve>
+        <cve>CVE-2004-1371</cve>
+        <cve>CVE-2004-1707</cve>
+        <cve>CVE-2006-0435</cve>
+  </suppress>
+        
+  <suppress>
+       <notes><![CDATA[
+        This suppresses CVE-2019-13990 for quartz-2.2.3.jar.
+        The CVE listed for this library is related to external entity references when parsing XML documents that define a 
+        Quartz job.  IdentityIQ's batch task engine uses Quartz for a portion of its implementation, but does not define 
+        jobs using XML or allow jobs to be defined using XML, so IdentityIQ is not affected by this vulnerability.  For the
+        purpose of removing the false positive, quartz is upgraded to 2.3.2 in IdentityIQ 8.2.
+        ]]></notes>
+        <filePath regex="true">.*[/\\]quartz-2\.2\.3\.jar</filePath>
+        <cve>CVE-2019-13990</cve>
+  </suppress>
+
+  <suppress>
+       <notes><![CDATA[
+        This suppresses CVE-2020-5398 for Spring Framework 5.1.5.
+        The vulnerabilities in this library are only applicable to Spring MVC and Spring WebFlux applications or 
+        applications that use Spring for file upload functionality.  IdentityIQ does not meet any of these criteria so is 
+        not affected by these vulnerabilities.  For the purpose of removing the false positive, spring is upgraded to 5.2.7
+        in IdentityIQ 8.2.
+        ]]></notes>
+        <filePath regex="true">.*[/\\]spring-.*-5\.1\.5\.RELEASE\.jar</filePath>
+        <cve>CVE-2020-5398</cve>
+  </suppress>
+
+</suppressions>
