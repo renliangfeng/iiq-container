@@ -11,6 +11,15 @@ if "%env%" NEQ "sandbox" (
 
 echo Selected environment to build: %env%
 
+set /p imageName=Type name of docker image you like to build
+
+if "%imageName%" NEQ "" (
+    set imageName=iq-image
+)
+
+echo Selected environment to build: %env%
+
+
 set SPTARGET=%env%
 
 set CURRENT_DIR=%cd%
@@ -25,7 +34,7 @@ cd iiq-app-docker
 
 echo Building IIQ Docker image
 
-docker build -t ndia-iiq-image .
+docker build -t %imageName% .
 
 goto theEnd
 

@@ -17,7 +17,7 @@ dist/
 *.log
 
 # Package files
-*.jar
+# *.jar
 
 # Maven
 target/
@@ -50,3 +50,7 @@ Thumbs.db
 .settings
 *.classpath
 *.project
+
+iiq-app/build/*
+iiq-app/base/**/*.jar
+iiq-app/base/**/*.zip

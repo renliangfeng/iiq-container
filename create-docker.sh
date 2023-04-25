@@ -13,9 +13,16 @@ function onFailure {
 START_IIQ_CONTAINER_BUILD="$(date)"
 
 START_IIQ_BUILD="$1 $(date)"
+
+IIQ_DOCKER_IMAGE_NAME=iiq-image
+if [ ! -z "$2" ]
+then
+    IIQ_DOCKER_IMAGE_NAME="$2"
+fi
+
 if [ ! -z "$1" ]
 then
-    echo "#### Running IIQ SSB build for env [$1]"
+    echo "#### Running IIQ SSB build for env [$1] ####"
     export SPTARGET=$1
     pushd ./iiq-app
     ./build.sh clean war
@@ -31,11 +38,11 @@ echo "#### Copy IIQ build output from SSB folder to volumn folder"
 cp -R ./iiq-app/build/deploy/identityiq.war ./iiq-app-docker/volumes/
 
 pushd ./iiq-app-docker
-docker build -t ndia-iiq-image .
+docker build -t ${IIQ_DOCKER_IMAGE_NAME} .
 popd
 END_CONTAINER_IIQ_BUILD="$(date)"
 
-echo "#### Start IIQ Container build:     ${START_IIQ_CONTAINER_BUILD}"
+echo "#### Start IIQ Container build:     ${START_IIQ_CONTAINER_BUILD}; IIQ Docker image name:  ${IIQ_DOCKER_IMAGE_NAME} #####"
 echo "#### Start IIQ build:     ${START_IIQ_BUILD}"
 echo "#### End IIQ build:       ${END_IIQ_BUILD}"
 echo "#### End IIQ Container build:       ${END_CONTAINER_IIQ_BUILD}"

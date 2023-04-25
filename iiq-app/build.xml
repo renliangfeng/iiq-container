@@ -400,7 +400,7 @@
     	
         <!-- Check whether the IIQ version is earlier than a given version
         number so that we can exclude certain components from compilation
-        if they are not compatible with earlier versions -->
+        if they are not compatible with earlier versions 
         <script language="javascript">
             <![CDATA[
              var version = parseFloat(project.getProperty('IIQVersion'));
@@ -413,7 +413,7 @@
         	 project.setProperty('pre8.0', version < 8.0 ? "true" : "false");
            ]]>
         </script>
-    	
+    	-->
         <!-- laydown initial binaries and custom static web content -->
         <antcall inheritall="true" target="prepBinaries"/>
 
