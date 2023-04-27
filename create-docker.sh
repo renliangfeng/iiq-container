@@ -14,6 +14,7 @@ START_IIQ_CONTAINER_BUILD="$(date)"
 
 START_IIQ_BUILD="$1 $(date)"
 
+SSB_INSTALL_DIR_NAME=iiq-app
 IIQ_DOCKER_IMAGE_NAME=iiq-image
 if [ ! -z "$2" ]
 then
@@ -24,7 +25,7 @@ if [ ! -z "$1" ]
 then
     echo "#### Running IIQ SSB build for env [$1] ####"
     export SPTARGET=$1
-    pushd ./iiq-app
+    pushd ./$SSB_INSTALL_DIR_NAME
     ./build.sh clean war
     END_IIQ_BUILD="$(date)"
     popd
@@ -35,7 +36,7 @@ fi
 
 echo "#### Copy IIQ build output from SSB folder to volumn folder"
 
-cp -R ./iiq-app/build/deploy/identityiq.war ./iiq-app-docker/volumes/
+cp -R ./$SSB_INSTALL_DIR_NAME/build/deploy/identityiq.war ./iiq-app-docker/volumes/
 
 pushd ./iiq-app-docker
 docker build -t ${IIQ_DOCKER_IMAGE_NAME} .

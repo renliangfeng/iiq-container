@@ -10,12 +10,38 @@ After you clone the repository to your local file system, you will see the follo
 ## iiq-app
 This folder represents a **SSB Install Directory** you typically will use for an IdentityIQ implementation project. You can perfrom any commands supported by SSB. You should follow the same instructions in the SSB document to configure the files under this folder except that you cannot rename this folder.
 
-Please note that IdentityIQ is closed source so you first need to get a license for IdenityIQ and go to [https://community.sailpoint.com](url) to download the software. Then you will put the downloaded zip and patch jar file into the base/ga and base/patch directory as per SSB document.
-
-
-The link to download the SSB package:
+You need to download the SSB package from the link below:
 
 [https://community.sailpoint.com/t5/Professional-Services/Services-Standard-Build-SSB-v7-0-1/ta-p/190496](url)
+
+Then unzip the file ***ssb-v7.0.1.zip*** and copy all the files and subfolders under folder ***ssb-v7.0.1*** to this location (***iip-app***). You can choose to have a different name than *iip-app*, but you will need to update the value of variable ***SSB_INSTALL_DIR_NAME*** in *create-docker.sh* and *create-docker.bat*.
+
+When I download SSB package to start a brand new project, I noticed I have to comment out the following section in the *build.xml* file to make the build successful.
+
+
+```
+	<!-- Check whether the IIQ version is earlier than a given version
+        number so that we can exclude certain components from compilation
+        if they are not compatible with earlier versions 
+        <script language="javascript">
+            <![CDATA[
+             var version = parseFloat(project.getProperty('IIQVersion'));
+             project.setProperty('pre6.2', version < 6.2 ? "true" : "false");
+             project.setProperty('pre6.3', version < 6.3 ? "true" : "false");
+             project.setProperty('pre6.4', version < 6.4 ? "true" : "false"); 
+             project.setProperty('pre7.0', version < 7.0 ? "true" : "false");
+             project.setProperty('pre7.1', version < 7.1 ? "true" : "false");
+             project.setProperty('pre7.2', version < 7.2 ? "true" : "false");
+        	 project.setProperty('pre8.0', version < 8.0 ? "true" : "false");
+           ]]>
+        </script>
+    	-->
+
+```
+
+Please note that IdentityIQ is closed source so you first need to get a license for IdenityIQ and go to [https://community.sailpoint.com](url) to download the software. Then you will put the downloaded zip and patch jar file into the base/ga and base/patch directory as per SSB document.
+
+In another scenario that you may already have all source code in an existing *SSB Install Directory*, you simply need to copy all the files and subfolders to this folder. 
 
 
 ## iip-app-docker

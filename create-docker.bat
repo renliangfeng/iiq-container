@@ -19,16 +19,17 @@ if "%imageName%" NEQ "" (
 
 echo Selected environment to build: %env%
 
+set SSB_INSTALL_DIR_NAME=iiq-app
 
 set SPTARGET=%env%
 
 set CURRENT_DIR=%cd%
 
-cd iiq-app
+cd %SSB_INSTALL_DIR_NAME%
 CALL build.bat clean war
 cd %CURRENT_DIR%
 
-xcopy /S iiq-app\build\deploy\identityiq.war iiq-app-docker\volumes /Y
+xcopy /S %SSB_INSTALL_DIR_NAME%\build\deploy\identityiq.war iiq-app-docker\volumes /Y
 
 cd iiq-app-docker
 
