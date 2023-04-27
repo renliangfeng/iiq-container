@@ -51,6 +51,4 @@ Thumbs.db
 *.classpath
 *.project
 
-iiq-app/build/*
-iiq-app/base/**/*.jar
-iiq-app/base/**/*.zip
+iiq-app/*

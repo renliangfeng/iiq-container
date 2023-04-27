@@ -39,6 +39,13 @@ When I download SSB package to start a brand new project, I noticed I have to co
 
 ```
 
+If you build from MacOS or Linux, make sure you have execute permission on the file *iiq-app/build.sh*. I notice the file inside the donwloaded SSB package does not have the execution permission and I have to manually grant it by running the following command:
+
+```
+	chmod +x build.sh
+```
+
+
 Please note that IdentityIQ is closed source so you first need to get a license for IdenityIQ and go to [https://community.sailpoint.com](url) to download the software. Then you will put the downloaded zip and patch jar file into the base/ga and base/patch directory as per SSB document.
 
 In another scenario that you may already have all source code in an existing *SSB Install Directory*, you simply need to copy all the files and subfolders to this folder. 
