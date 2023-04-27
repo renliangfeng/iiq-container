@@ -2,7 +2,7 @@ Extend SSB (Standard Service Build) to Containerize (Docker) SailPoint IdentityI
 ================================
 
 # Summary
-This solution is built on top of SSB (Standard Service Build) v7.0.1. It relies on SSB to perform the build the IdentityIQ war file. The war file is then used to build a Docker container image. The generated Docker image can then be deployed to a Kubernetes cluster or Docker container instance. In this example, we will demonstrate how to use Helm Chart to deploy the Docker image to a simulated Kubernetes cluster in local environment (Docker Desktop). 
+This solution is built on top of SSB (Standard Service Build) v7.0.1. It relies on SSB to perform the build the IdentityIQ war file. The war file is then used to build a Docker container image. The generated Docker image can then be deployed to a Kubernetes cluster or Docker container instance. In this example, we will demonstrate how to use Helm Chart to deploy the Docker image to a simulated Kubernetes cluster in local environment (Docker Desktop). The containerized IdentityIQ runs in Tomcat 9.0.72 and JDK 11.
 
 # Folder Structure Explained
 After you clone the repository to your local file system, you will see the following 2 sub-folders (***iiq-app***, ***iiq-app-docker***) under the root folder (***iiq-docker***) as explained below. 
