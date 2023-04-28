@@ -2,7 +2,11 @@ Extend SSB (Standard Service Build) to Containerize (Docker) SailPoint IdentityI
 ================================
 
 # Summary
-This solution is built on top of SSB (Standard Service Build) v7.0.1. It relies on SSB to perform the build the IdentityIQ war file. The war file is then used to build a Docker container image. The generated Docker image can then be deployed to a Kubernetes cluster or Docker container instance. In this example, we will demonstrate how to use Helm Chart to deploy the Docker image to a simulated Kubernetes cluster in local environment (Docker Desktop). The containerized IdentityIQ runs in Tomcat 9.0.72 and JDK 11.
+This solution is built on top of SSB (Standard Service Build) v7.0.1. It relies on SSB to perform the build the IdentityIQ war file. The war file is then used to build a Docker container image. The generated Docker image can then be deployed to a Kubernetes cluster or Docker container instance. In this example, we will demonstrate:
+- run in Docker container instance.
+- use Helm Chart to deploy the Docker image to a simulated Kubernetes cluster in local environment (Docker Desktop). 
+
+The containerized IdentityIQ runs in Tomcat 9.0.72 and JDK 11.
 
 # Folder Structure Explained
 After you clone the repository to your local file system, you will see the following 2 sub-folders (***iiq-app***, ***iiq-app-docker***) under the root folder (***iiq-docker***) as explained below. 
@@ -96,6 +100,14 @@ You may need to tag and publish the image to an internal docker image registry
 
 
 # How to run IdentityIQ Docker Image
+
+## Run in Docker Container instance
+To run IdentityIQ in a Docker Container instance is simply to execute the following command after the docker image is built. Before that, you need to prepare the *iiq.properties* file and save it in your preferred location, then update the command with the right path. Most likely, you may want to override *log4j2.properties* with your ownn version. You can just simply add an additional parameter. Lastly, change *iiq-image* to name of docker image you've built.
+
+```
+docker run -it -v /Users/bruce.ren/Desktop/log/sp-log/:/usr/local/tomcat/logs -v /Users/bruce.ren/Desktop/iiq-properties/sandbox/iiq.properties/:/usr/local/tomcat/webapps/identityiq/WEB-INF/classes/iiq.properties --name my-iiq-container -d -p 8080:8080 iiq-image
+```
+
 ## Run in local Kubernetes cluster in Docker Desktop
-Refer to the following repository for steps:
+Run IdentityIQ in Kubernetes cluster is more complicated than Docker container instance. Refer to the following repository for more details:
 - [https://github.com/renliangfeng/iiq-helm](url)
