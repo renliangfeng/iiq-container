@@ -9,7 +9,7 @@ This solution is built on top of SSB (Standard Service Build) v7.0.1. It relies 
 The containerized IdentityIQ runs in Tomcat 9.0.72 and JDK 11.
 
 # Folder Structure Explained
-After you clone the repository to your local file system, you will see the following 2 sub-folders (***iiq-app***, ***iiq-app-docker***) under the root folder (***iiq-docker***) as explained below. 
+After you clone the repository to your local file system, you will see the following a sub-folders (***iiq-app***) and other files under the root folder (***iiq-docker***) as explained below. 
 
 ## iiq-app
 This folder represents a **SSB Install Directory** you typically will use for an IdentityIQ implementation project. You can perfrom any commands supported by SSB. You should follow the same instructions in the SSB document to configure the files under this folder except that you cannot rename this folder.
@@ -18,7 +18,7 @@ You need to download the SSB package from the link below:
 
 [https://community.sailpoint.com/t5/Professional-Services/Services-Standard-Build-SSB-v7-0-1/ta-p/190496](url)
 
-Then unzip the file ***ssb-v7.0.1.zip*** and copy all the files and subfolders under folder ***ssb-v7.0.1*** to this location (***iip-app***). You can choose to have a different name than *iip-app*, but you will need to update the value of variable ***SSB_INSTALL_DIR_NAME*** in *create-docker.sh* and *create-docker.bat*.
+Then unzip the file ***ssb-v7.0.1.zip*** and copy all the files and subfolders under folder ***ssb-v7.0.1*** to this location (***iip-app***).
 
 When I download SSB package to start a brand new project, I noticed I have to comment out the following section in the *build.xml* file to make the build successful.
 
@@ -43,24 +43,18 @@ When I download SSB package to start a brand new project, I noticed I have to co
 
 ```
 
-If you build from MacOS or Linux, make sure you have execute permission on the file *iiq-app/build.sh*. I notice the file inside the donwloaded SSB package does not have the execution permission and I have to manually grant it by running the following command:
-
-```
-	chmod +x build.sh
-```
-
 
 Please note that IdentityIQ is closed source so you first need to get a license for IdenityIQ and go to [https://community.sailpoint.com](url) to download the software. Then you will put the downloaded zip and patch jar file into the base/ga and base/patch directory as per SSB document.
 
 In another scenario that you may already have all source code in an existing *SSB Install Directory*, you simply need to copy all the files and subfolders to this folder. 
 
 
-## iip-app-docker
-This folder contains the script files to build the docker image for IdentityIQ. The docker image is built based from:
+## other files
+The remaining files under the root folder are used to build the docker image for IdentityIQ. The docker image is built based from:
 
 - 9.0.72-jdk11-temurin-focal
 
-You can modify the file ***iiq-app-docker/Dockerfile*** to change to different version of Tomcat or JDK, but you will need to test to ensure the image still works in your docker environment.
+You can modify the file ***Dockerfile*** to change to different version of Tomcat or JDK, but you will need to test to ensure the image still works in your docker environment.
 
 Notes: to ensure the same docker image works across multiple environment, ***iiq.properties*** is removed when building the image. The idea is to mount ***iiq.propertie**s* (or ***log4j2.properties***) to the docker container separately (in Kubernetes via ConfigMap).   
 
@@ -74,26 +68,18 @@ Notes: to ensure the same docker image works across multiple environment, ***iiq
 
 
 ## Build docker image
-### Mac (linux)
 Run the following command under the root folder (***iiq-docker***):
 
 ```
-./create-docker.sh <<env>> <<imageName>>
+docker build . -t <<image-name>> --build-arg SPTARGET=<<environment>>
 ```
-You need to specify the parameters "environment" and "name of image" to execute the command. The default image name "iiq-image" will be used if that parameter is not specifed. Below is an exmaple to build image against sandbox environment. 
+You need to specify the image name and environment parameter "***SPTARGET***" to execute the command. Below is an exmaple to build image against sandbox environment. 
 
-Note: the environment parameter is required only because of SSB, the image itself doesn't contain environment related files (***iiq.properties*** is stripped off from the war file inside the image).  
-
-```
-./create-docker.sh sandbox my-iiq-image
-```
-### Windows
-Run the following command under the root folder (***iiq-docker***):
+Note: the environment parameter (***SPTARGET***) is required only because of SSB, the image itself doesn't contain environment related files (***iiq.properties*** is stripped off from the war file inside the image).  
 
 ```
-create-docker.bat
+docker build . -t my-iiq-image --build-arg SPTARGET=sandbox
 ```
-Type the "environment" and "name of image" parameters in the prompt to execute the build.
 
 ## Publish docker image
 You may need to tag and publish the image to an internal docker image registry
