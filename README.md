@@ -9,7 +9,7 @@ This solution is built on top of SSB (Standard Service Build) v7.0.1. It relies 
 The containerized IdentityIQ runs in Tomcat 9.0.72 and JDK 11.
 
 # Folder Structure Explained
-After you clone the repository to your local file system, you will see the following a sub-folders (***iiq-app***) and other files under the root folder (***iiq-docker***) as explained below. 
+After you clone the repository to your local file system, you will see the following a sub-folders (***iiq-app***) and other files under the root folder (***iiq-container***) as explained below.
 
 ## iiq-app
 This folder represents a **SSB Install Directory** you typically will use for an IdentityIQ implementation project. You can perfrom any commands supported by SSB. You should follow the same instructions in the SSB document to configure the files under this folder except that you cannot rename this folder.
@@ -68,7 +68,7 @@ Notes: to ensure the same docker image works across multiple environment, ***iiq
 
 
 ## Build docker image
-Run the following command under the root folder (***iiq-docker***):
+Run the following command under the root folder (***iiq-container***):
 
 ```
 docker build . -t <<image-name>> --build-arg SPTARGET=<<environment>>
@@ -78,7 +78,7 @@ You need to specify the image name and environment parameter "***SPTARGET***" to
 Note: the environment parameter (***SPTARGET***) is required only because of SSB, the image itself doesn't contain environment related files (***iiq.properties*** is stripped off from the war file inside the image).  
 
 ```
-docker build . -t my-iiq-image --build-arg SPTARGET=sandbox
+docker build . -t iiq-image --build-arg SPTARGET=sandbox
 ```
 
 ## Publish docker image
@@ -96,4 +96,4 @@ docker run -it -v /Users/bruce.ren/Desktop/log/sp-log/:/usr/local/tomcat/logs -v
 
 ## Run in local Kubernetes cluster in Docker Desktop
 Run IdentityIQ in Kubernetes cluster is more complicated than Docker container instance. Refer to the following repository for more details:
-- [https://github.com/renliangfeng/iiq-helm](url)
+- [https://github.com/renliangfeng/iiq-chart](url)
