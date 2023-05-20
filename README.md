@@ -9,7 +9,7 @@ This solution is built on top of SSB (Standard Service Build) v7.0.1. It relies 
 The containerized IdentityIQ runs in Tomcat 9.0.72 and JDK 11.
 
 # Folder Structure Explained
-After you clone the repository to your local file system, you will see the following a sub-folders (***iiq-app***) and other files under the root folder (***iiq-container***) as explained below. 
+After you clone the repository to your local file system, you will see the following a sub-folders (***iiq-app***) and other files under the root folder (***iiq-container***) as explained below.
 
 ## iiq-app
 This folder represents a **SSB Install Directory** you typically will use for an IdentityIQ implementation project. You can perfrom any commands supported by SSB. You should follow the same instructions in the SSB document to configure the files under this folder except that you cannot rename this folder.
