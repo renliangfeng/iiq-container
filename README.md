@@ -2,7 +2,7 @@ Extend SSB (Standard Service Build) to Containerize (Docker) SailPoint IdentityI
 ================================
 
 # Summary
-This solution is built on top of SSB (Standard Service Build) v7.0.1. It relies on SSB to perform the build the IdentityIQ war file. The war file is then used to build a Docker container image. The generated Docker image can then be deployed to a Kubernetes cluster or Docker container instance. In this example, we will demonstrate:
+Inspired by [https://github.com/steffensperling/sailpoint-iiq](url), this solution is built on top of SSB (Standard Service Build) v7.0.1. It relies on SSB to perform the build the IdentityIQ war file. The war file is then used to build a Docker container image. The generated Docker image can then be deployed to a Kubernetes cluster or Docker container instance. In this example, we will demonstrate:
 - run in Docker container instance.
 - use Helm Chart to deploy the Docker image to a simulated Kubernetes cluster in local environment (Docker Desktop). 
 
@@ -79,6 +79,20 @@ Note: the environment parameter (***SPTARGET***) is required only because of SSB
 
 ```
 docker build . -t iiq-image --build-arg SPTARGET=sandbox
+```
+Additionally, you can use the following parameters to create directories used by IdentityIQ inside Docker image:
+- **FULL_TEXT_INDEX_PATH**
+
+	This directory is used to configure the path of LCM Full Text Index. 
+- **UPLOAD_FILE_PATH**
+
+	This directory can by used to configure Delimited File based applications in IdentityIQ. The directory contains the csv files read by IdentityIQ. You can also use this directory (or sub-folders) for other purposes that involves files consumed by IdentityIQ. 
+
+Below is an exmaple to build image using these additional parameters. Please note you will need to mount the volumes to a persistent folder (in host or file share service in a AWS or Azure cloud environment) via Kubernetes Helm Chart or Docker Container instance lauching command. Refer to the following repository to learn how to map the mount volumes via Helm Chart [https://github.com/renliangfeng/iiq-chart](url) .
+
+
+```
+docker build . -t iiq-image --build-arg SPTARGET=sandbox --build-arg FULL_TEXT_INDEX_PATH=/mnt/iiq-fulltext-index --build-arg UPLOAD_FILE_PATH=/mnt/file-upload
 ```
 
 ## Publish docker image
