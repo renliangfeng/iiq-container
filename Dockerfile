@@ -18,6 +18,8 @@ chmod +x build.sh && \
 
 
 FROM tomcat:9.0.72-jdk11-temurin-focal
+ARG FULL_TEXT_INDEX_PATH
+ARG UPLOAD_FILE_PATH
 
 # Install dependencies
 RUN apt-get update && \
@@ -43,6 +45,9 @@ RUN mkdir /usr/local/tomcat/webapps/ROOT
 COPY index.html /usr/local/tomcat/webapps/ROOT
 
 RUN mkdir -p /usr/local/keystore
+
+RUN if [ -z "$FULL_TEXT_INDEX_PATH" ] ; then echo No directory is created for full text index; else mkdir -p $FULL_TEXT_INDEX_PATH; fi
+RUN if [ -z "$UPLOAD_FILE_PATH" ] ; then echo No directory is created for file uploading; else mkdir -p $UPLOAD_FILE_PATH; fi
 
 COPY entrypoint.sh /entrypoint.sh
 RUN sed -i 's/\r$//' /entrypoint.sh  && \
